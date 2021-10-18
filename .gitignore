@@ -1,0 +1,11 @@
+*映画
+*videos
+*.ini
+*.lnk
+*.mp4
+*.flv
+*.m3u8
+*.db
+*node_modules
+*package-lock.json
+*.bat

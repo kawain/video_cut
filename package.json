@@ -1,0 +1,12 @@
+{
+  "name": "video_cut",
+  "version": "0.0.1",
+  "description": "動画カット用",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^15.1.0"
+  }
+}

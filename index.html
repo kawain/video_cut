@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+    <title>動画カッター</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .text {
+            width: 100%;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <video controls muted width="100%" id="video" src=""></video>
+
+    <table>
+        <tr>
+            <td>ファイル</td>
+            <td><input type="text" id="filepath" class="text"></td>
+        </tr>
+        <tr>
+            <td>コピー先</td>
+            <td>
+                <input type="text" id="copypath" list="dir" class="text" value="./videos/">
+            </td>
+        </tr>
+        <tr>
+            <td>1)開始時間</td>
+            <td><input type="text" id="time11" class="text"></td>
+        </tr>
+        <tr>
+            <td>1)終了時間</td>
+            <td><input type="text" id="time12" class="text"></td>
+        </tr>
+        <tr>
+            <td>2)開始時間</td>
+            <td><input type="text" id="time21" class="text"></td>
+        </tr>
+        <tr>
+            <td>2)終了時間</td>
+            <td><input type="text" id="time22" class="text"></td>
+        </tr>
+        <tr>
+            <td>3)開始時間</td>
+            <td><input type="text" id="time31" class="text"></td>
+        </tr>
+        <tr>
+            <td>3)終了時間</td>
+            <td><input type="text" id="time32" class="text"></td>
+        </tr>
+        <tr>
+            <td>
+                <br>
+            </td>
+            <td>
+                <button id="btn">実行</button>
+                <button id="kara">空にする</button>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        // 外部コマンド実行用
+        const exec = window.requires.exec
+        // const exec = require("child_process").exec
+
+        // デフォルトの挙動を止める
+        document.ondragover = document.ondrop = function (e) {
+            e.preventDefault()
+        }
+
+        const video = document.getElementById("video")
+        const filepath = document.getElementById("filepath")
+        const copypath = document.getElementById("copypath")
+        const time11 = document.getElementById("time11")
+        const time12 = document.getElementById("time12")
+        const time21 = document.getElementById("time21")
+        const time22 = document.getElementById("time22")
+        const time31 = document.getElementById("time31")
+        const time32 = document.getElementById("time32")
+        const btn = document.getElementById("btn")
+        const kara = document.getElementById("kara")
+
+        // 画面内どこでもdropしたら
+        document.addEventListener("drop", (e) => {
+            filepath.value = e.dataTransfer.files[0].path
+            video.src = e.dataTransfer.files[0].path
+            video.load()
+            video.play()
+        })
+
+        // 動画の現在の時間
+        time11.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+        time12.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+        time21.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+        time22.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+        time31.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+        time32.addEventListener("click", (e) => {
+            e.target.value = video.currentTime
+        })
+
+        btn.addEventListener("click", () => {
+            if (!time11.value || !time12.value) {
+                return
+            }
+            // 現在時間でファイル名を作成
+            const d = new Date()
+            const out = `${d.getFullYear()}${(d.getMonth() + 1)}${d.getDate()}${d.getHours()}${d.getMinutes()}${d.getSeconds()}${d.getMilliseconds()}`
+
+            let a = []
+            let start = Number(time11.value)
+            let end = Number(time12.value)
+            let hanni = end - start
+            a.push([start, hanni])
+
+            start = Number(time21.value)
+            end = Number(time22.value)
+            hanni = end - start
+            a.push([start, hanni])
+
+            start = Number(time31.value)
+            end = Number(time32.value)
+            hanni = end - start
+            a.push([start, hanni])
+
+            time11.value = ""
+            time12.value = ""
+            time21.value = ""
+            time22.value = ""
+            time31.value = ""
+            time32.value = ""
+
+            let i = 0
+            for (const v of a) {
+                if (!v[0] || !v[1]) {
+                    continue
+                }
+                // コマンド実行
+                const command = `ffmpeg -ss ${v[0]} -i ${filepath.value} -t ${v[1]} -c copy ${copypath.value}${out + i}.mp4`
+                exec(command, (error, stdout, stderr) => {
+                    console.log("error", error)
+                    console.log("stdout", stdout)
+                    console.log("stderr", stderr)
+                })
+                i++
+            }
+        })
+
+        kara.addEventListener("click", () => {
+            filepath.value = ""
+            time11.value = ""
+            time12.value = ""
+            time21.value = ""
+            time22.value = ""
+            time31.value = ""
+            time32.value = ""
+            video.src = ""
+            video.load()
+        })
+
+        video.addEventListener("keydown", (e) => {
+            switch (e.keyCode) {
+                case 65:
+                    e.preventDefault();
+                    video.currentTime -= 10;
+                    break;
+
+                case 68:
+                    e.preventDefault();
+                    video.currentTime += 30;
+                    break;
+
+            }
+        })
+
+    </script>
+
+</body>
+
+</html>
